@@ -18,6 +18,7 @@ export interface Game {
     count: number;
     results: Game[];
   }
+
   
 const useGames = () => {
         const [games, setGames] = useState<Game[]>([]);
@@ -28,6 +29,7 @@ const useGames = () => {
         const controller = new AbortController();
 
         setLoading(true);
+        console.log("setLoading to true");
 
           apiClient
             .get<FetchGamesResponse>("/games", {signal: controller.signal})
@@ -37,13 +39,23 @@ const useGames = () => {
             })
             .catch((err) => {
                 if (err instanceof CanceledError) return;
-                setError(err.message)});
+                setError(err.message)
+            })
+            .finally(() => {
                 setLoading(false);
+                console.log("setLoading to false");
+            });
 
-            return () => controller.abort
+            return () => {
+                console.log("Cleanup called");
+                controller.abort()
+            }
         }, []);
-
+            
         return { games, error, isLoading};
+
+        
 }
+
 
 export default useGames
